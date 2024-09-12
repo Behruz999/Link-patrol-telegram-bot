@@ -26,18 +26,29 @@ bot.on("message", (ctx) => {
           if (entity.type === "url") {
             const messageId = ctx.message_id;
             const username = ctx.from.username;
-            // const response = username
-            //   ? `Please do not share links in this group!`
-            //   : `<a href="tg://user?id=${user.id}">${user.first_name}</a> Please do not share links in this group!`;
-            const response = `<a href="tg://user?id=${user.id}">${user.first_name}</a> Please do not share links in this group!`;
+            const response = username
+              ? `@${username} Please do not share links in this group!`
+              : `<a href="tg://user?id=${user.id}">${user.first_name}</a> Please do not share links in this group!`;
+            const options = username
+              ? {
+                  entities: [
+                    { type: "mention", offset: 0, length: response.length },
+                  ],
+                }
+              : {
+                  entities: [
+                    {
+                      type: "text_mention",
+                      offset: 0,
+                      length: response.length,
+                      user,
+                    },
+                  ],
+                  parse_mode: "HTML",
+                };
             bot.sendChatAction(chatId, "typing");
             bot.deleteMessage(chatId, messageId);
-            bot.sendMessage(chatId, response, {
-              entities: [
-                { type: "text_mention", offset: 0, length: response.length, user },
-              ],
-              parse_mode: "HTML",
-            });
+            bot.sendMessage(chatId, response, options);
           }
         }
       }
